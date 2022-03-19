@@ -1,13 +1,15 @@
 from optparse import BadOptionError
 import random
 import numpy as np
+import bisect
 
 class TSPSolver:
     def __init__(self):
         self.__options = [
             ('nn', self.nearestNeighbour),
             ('gc', self.greedyCycle),
-            ('2r', self.twoRegret)
+            ('2r', lambda dmat, sol: self.kRegret(dmat, sol, 2)),
+            ('3r', lambda dmat, sol: self.kRegret(dmat, sol, 3))
         ]
     
     def solve(self, tspInstance, algorithmName, visualize=False):
@@ -67,9 +69,42 @@ class TSPSolver:
 
     def greedyCycle(self, dmatrix, start):
         pass
-    def twoRegret(self, dmatrix, start):
-        pass
-    
+    def kRegret(self, dmatrix, solution, k):
+        used=set()
+        used.add(solution[0][0])
+        used.add(solution[1][0])
+
+        while len(used)<len(dmatrix):
+            if self.__vis: 
+                self.__vis(cycle=True)
+
+            if len(solution[0]) <= len(solution[1]):
+                cycle = solution[0]
+            else:
+                cycle = solution[1]
+            
+            currCycleScore = self.calcCycleScore(cycle, dmatrix)
+            candidates=[]
+            for node in range(len(dmatrix)):
+                if node not in used:
+                    scores=[]
+                    for i, edge in enumerate((cycle[i], cycle[(i+1)%len(cycle)])for i in range(len(cycle))):
+                        n1,n2=edge
+                        tmp=(i+1, currCycleScore - dmatrix[n1][n2] + dmatrix[n1][node] + dmatrix[node][n2])
+                        bisect.insort(scores, tmp, key=lambda e: e[1])
+                    if len(scores) < 3:
+                        tmp=(node, scores[0][0], scores[0][1])
+                    else:
+                        regret=0
+                        for i in range(1,k):
+                            if i >= len(scores):
+                                break
+                            regret+=scores[i][1]-scores[0][1]
+                        tmp=(node, scores[0][0], -regret)
+                    bisect.insort(candidates, tmp, key= lambda e: e[2])
+            used.add(candidates[0][0])
+            cycle.insert(candidates[0][1], candidates[0][0])
+        
     def calcCycleScore(self, cycle, dmatrix):
         score=0
         for n1, n2 in ((cycle[i], cycle[(i+1)%len(cycle)])for i in range(len(cycle))):
