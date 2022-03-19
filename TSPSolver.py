@@ -7,8 +7,7 @@ class TSPSolver:
         self.__options = [
             ('nn', self.nearestNeighbour),
             ('gc', self.greedyCycle),
-            ('2r', self.twoRegret),
-            ('3r', self.threeRegret)
+            ('2r', self.twoRegret)
         ]
     
     def solve(self, tspInstance, algorithmName, visualize=False):
@@ -36,21 +35,30 @@ class TSPSolver:
 
         proxTable= tuple(sorted(range(len(dmatrix)), key=lambda node: dmatrix[i][node]) for i in range(len(dmatrix)))
 
+        lastAddedNodes=[solution[0][-1], solution[1][-1]]
         while len(used)<len(dmatrix):
             if self.__vis: 
                 self.__vis(cycle=False)
 
-            cycle = solution[0] if len(solution[0]) <= len(solution[1]) else solution[1]
+            if len(solution[0]) <= len(solution[1]):
+                cycleNumber=0
+                cycle = solution[0]
+            else:
+                cycleNumber=1
+                cycle = solution[1]
 
             nodeToAdd=None
-            for nodeToAdd in proxTable[cycle[-1]]:
+            for nodeToAdd in proxTable[lastAddedNodes[cycleNumber]]:
                 if(nodeToAdd not in used):
                     used.add(nodeToAdd)
+                    lastAddedNodes[cycleNumber]=nodeToAdd
                     break
+                
             prevNodeIndex = len(cycle)-1
-            bestDistance = dmatrix[cycle[prevNodeIndex]][nodeToAdd]
+            bestDistance = dmatrix[cycle[prevNodeIndex]][nodeToAdd] + dmatrix[cycle[0]][nodeToAdd]
             for i in range(len(cycle)):
-                newDistance=dmatrix[cycle[i]][nodeToAdd]
+                nexti=(i+1)%len(cycle)
+                newDistance = dmatrix[cycle[i]][nodeToAdd] + dmatrix[cycle[nexti]][nodeToAdd]
                 if(newDistance < bestDistance):
                     bestDistance=newDistance
                     prevNodeIndex=i
@@ -60,8 +68,6 @@ class TSPSolver:
     def greedyCycle(self, dmatrix, start):
         pass
     def twoRegret(self, dmatrix, start):
-        pass
-    def threeRegret(self, dmatrix, start):
         pass
     
     def calcCycleScore(self, cycle, dmatrix):
