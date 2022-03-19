@@ -38,7 +38,7 @@ class TSPSolver:
 
         while len(used)<len(dmatrix):
             if self.__vis: 
-                self.__vis()
+                self.__vis(cycle=False)
 
             cycle = solution[0] if len(solution[0]) <= len(solution[1]) else solution[1]
 
@@ -63,3 +63,9 @@ class TSPSolver:
         pass
     def threeRegret(self, dmatrix, start):
         pass
+    
+    def calcCycleScore(self, cycle, dmatrix):
+        score=0
+        for n1, n2 in ((cycle[i], cycle[(i+1)%len(cycle)])for i in range(len(cycle))):
+            score+=dmatrix[n1][n2]
+        return score

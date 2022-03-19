@@ -8,21 +8,40 @@ class TSPInstance:
         self.dmatrix=None
         self.solution=None
 
+    def __getSolutionEdges(self):
+        c1,c2 = self.solution
+        return [list((c1[i], c1[(i+1)%len(c1)])for i in range(len(c1))), list((c2[i], c2[(i+1)%len(c2)])for i in range(len(c2)))]
+
+    def score(self):
+        if self.solution:
+            res=0
+            c1,c2 = self.__getSolutionEdges()
+            for n1,n2 in c1:
+                res+=self.dmatrix[n1][n2]
+            for n1,n2 in c2:
+                res+=self.dmatrix[n1][n2]
+            return res
+        return None
+
+
     def loadInstance(self, path):
         self.__loadTSPCoords(path)
         self.__calcDistanceMatrix()
         self.solution=None
 
-    def draw(self):
+    def draw(self, cycle=True):
         g = nx.Graph()
         g.add_nodes_from(i for i in range(len(self.coords)))
         
         if self.solution:
-            c1,c2=self.solution
+            c1,c2= self.__getSolutionEdges()
+            if not cycle:
+                c1=c1[:-1]
+                c2=c2[:-1]
             g1 = nx.Graph()
             g2 = nx.Graph()
-            g1.add_edges_from((c1[i], c1[(i+1)%len(c1)])for i in range(len(c1)))
-            g2.add_edges_from((c2[i], c2[(i+1)%len(c2)])for i in range(len(c2)))
+            g1.add_edges_from(c1)
+            g2.add_edges_from(c2)
             coordDict=dict(enumerate(self.coords))
 
         plt.clf()

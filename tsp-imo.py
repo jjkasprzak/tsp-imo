@@ -9,3 +9,4 @@ if __name__ == '__main__':
     solver = TSPSolver()
     solver.solve(instance, 'nn', visualize=True)
     print(instance.solution)
+    print(instance.score())
