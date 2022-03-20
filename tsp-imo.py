@@ -14,7 +14,7 @@ if __name__ == '__main__':
             print(filename + ' ' + algorithm)
             scores=[]
             for i in range(1):
-                solver.solve(instance, algorithm)
+                solver.solve(instance, algorithm, visualize=True)
                 scores.append(instance.score())
             print(str(sum(scores)//len(scores)) + ' (' + str(min(scores)) + ' - ' + str(max(scores)) + ')')
             instance.show()
