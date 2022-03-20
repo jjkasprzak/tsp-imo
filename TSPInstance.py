@@ -50,7 +50,7 @@ class TSPInstance:
             nx.draw(g1, coordDict, node_color="#FF0000", edge_color="#FF0000", node_size=40)
             nx.draw(g2, coordDict, node_color="#0000FF", edge_color="#0000FF", node_size=40)
         plt.draw()
-        plt.pause(0.1)
+        plt.pause(0.5)
 
     def show(self):
         self.draw()

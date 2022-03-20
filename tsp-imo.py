@@ -13,8 +13,8 @@ if __name__ == '__main__':
         for algorithm in ['nn', 'gc', '2r', '3r']:
             print(filename + ' ' + algorithm)
             scores=[]
-            for i in range(1):
-                solver.solve(instance, algorithm, visualize=True)
+            for i in range(1000):
+                solver.solve(instance, algorithm, visualize=False)
                 scores.append(instance.score())
             print(str(sum(scores)//len(scores)) + ' (' + str(min(scores)) + ' - ' + str(max(scores)) + ')')
-            instance.show()
+            #instance.show()
