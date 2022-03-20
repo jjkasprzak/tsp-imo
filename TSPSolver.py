@@ -36,7 +36,6 @@ class TSPSolver:
         used.add(solution[1][0])
 
         proxTable= tuple(sorted(range(len(dmatrix)), key=lambda node: dmatrix[i][node]) for i in range(len(dmatrix)))
-
         lastAddedNodes=[solution[0][-1], solution[1][-1]]
         while len(used)<len(dmatrix):
             if self.__vis: 
@@ -50,7 +49,7 @@ class TSPSolver:
                 cycle = solution[1]
 
             nodeToAdd=None
-            for nodeToAdd in proxTable[lastAddedNodes[cycleNumber]]:
+            for nodeToAdd in proxTable[cycle[-1]]:
                 if(nodeToAdd not in used):
                     used.add(nodeToAdd)
                     lastAddedNodes[cycleNumber]=nodeToAdd
@@ -66,9 +65,43 @@ class TSPSolver:
                     prevNodeIndex=i
             cycle.insert(prevNodeIndex+1, nodeToAdd)
 
+    def greedyCycle(self, dmatrix, solution):
+        unused = [*range(0,len(dmatrix))]
+        unused.remove(solution[0][0])
+        unused.remove(solution[1][0])
+        n = dmatrix[solution[0][0]].index(min(i for i in dmatrix[solution[0][0]] if i > 0))
+        solution[0].append(n)
+        unused.remove(n)
+        n = dmatrix[solution[1][0]].index(min(i for i in dmatrix[solution[1][0]] if i > 0))
+        solution[1].append(n)
+        unused.remove(n)
+        while len(unused) > 0:
+            if self.__vis: 
+                self.__vis(cycle=True)
 
-    def greedyCycle(self, dmatrix, start):
-        pass
+            if len(solution[0]) <= len(solution[1]):
+                cycleNumber=0
+                cycle = solution[0]
+            else:
+                cycleNumber=1
+                cycle = solution[1]
+
+            bestNode = unused[0]
+            bestInsert = 0
+            n1 = cycle[0]
+            n2 = cycle[1]
+            bestCycleScore = -dmatrix[n1][n2] + dmatrix[bestNode][n1] + dmatrix[bestNode][n2]
+            for node in unused:
+                for insert, edge in enumerate((cycle[i], cycle[(i+1)%len(cycle)])for i in range(len(cycle))):
+                    n1, n2 = edge
+                    tempScore = -dmatrix[n1][n2] + dmatrix[node][n1] + dmatrix[node][n2]
+                    if tempScore <= bestCycleScore:
+                        bestNode = node
+                        bestInsert = insert
+                        bestCycleScore = tempScore
+            unused.remove(bestNode)
+            cycle.insert(bestInsert+1, bestNode)
+
     def kRegret(self, dmatrix, solution, k):
         used=set()
         used.add(solution[0][0])
