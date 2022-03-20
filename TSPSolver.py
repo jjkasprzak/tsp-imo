@@ -1,7 +1,7 @@
 from optparse import BadOptionError
 import random
+from cv2 import sort
 import numpy as np
-import bisect
 
 class TSPSolver:
     def __init__(self):
@@ -82,16 +82,17 @@ class TSPSolver:
                 cycle = solution[0]
             else:
                 cycle = solution[1]
-            
-            currCycleScore = self.calcCycleScore(cycle, dmatrix)
+            cycleEdges = list(enumerate((cycle[i], cycle[(i+1)%len(cycle)])for i in range(len(cycle))))
+
             candidates=[]
             for node in range(len(dmatrix)):
                 if node not in used:
                     scores=[]
-                    for i, edge in enumerate((cycle[i], cycle[(i+1)%len(cycle)])for i in range(len(cycle))):
+                    for i, edge in cycleEdges:
                         n1,n2=edge
-                        tmp=(i+1, currCycleScore - dmatrix[n1][n2] + dmatrix[n1][node] + dmatrix[node][n2])
-                        bisect.insort(scores, tmp, key=lambda e: e[1])
+                        tmp=(i+1, -dmatrix[n1][n2] + dmatrix[n1][node] + dmatrix[node][n2])
+                        scores.append(tmp)
+                    scores=sorted(scores, key=lambda e: e[1])
                     if len(scores) < 3:
                         tmp=(node, scores[0][0], scores[0][1])
                     else:
@@ -100,8 +101,9 @@ class TSPSolver:
                             if i >= len(scores):
                                 break
                             regret+=scores[i][1]-scores[0][1]
-                        tmp=(node, scores[0][0], -regret)
-                    bisect.insort(candidates, tmp, key= lambda e: e[2])
+                        tmp=(node, scores[0][0], (-regret)/scores[0][1])
+                    candidates.append(tmp)
+            candidates=sorted(candidates, key=lambda e: e[2])
             used.add(candidates[0][0])
             cycle.insert(candidates[0][1], candidates[0][0])
         
