@@ -1,5 +1,7 @@
 
-
+import random
+from TSPSolver import visualizationStepTime
+from optparse import BadOptionError
 
 class TSPLocalSearch:
     def __init__(self):
@@ -9,24 +11,30 @@ class TSPLocalSearch:
             ('random', self.randomSearch)
         ]
     
-    def search(self, tspInstance):
+    def search(self, tspInstance, algorithmName, microSwaps, visualize=False):
         self.solution= tspInstance.solution
         self.dmatrix= tspInstance.dmatrix
 
-        tmp = tspInstance.score()
-        gain = self.getMacroNodeSwapGain(20, 40)
-        self.macroNodeSwap(20, 40)
-        print(gain == tspInstance.score()-tmp)
+        algorithm = list(o[1] for o in self.__options if algorithmName == o[0])
+        
+        self.__vis = (lambda: tspInstance.draw(True, visualizationStepTime)) if visualize else None
+        self.macroMove = self.macroNodeSwap
+        self.macroMoveGain = self.getMacroNodeSwapGain
+        if microSwaps == 'node':
+            self.microMove = self.microNodeSwap
+            self.microMoveGain = self.getMicroNodeSwapGain
+        elif microSwaps == 'edge':
+            self.microMove = self.microEdgeSwap
+            self.microMoveGain = self.getMicroEdgeSwapGain
+        else:
+            raise BadOptionError('No such swap option')
 
-        tmp = tspInstance.score()
-        gain = self.getMicroNodeSwapGain(0,20, 40)
-        self.microNodeSwap(0, 20, 40)
-        print(gain == tspInstance.score()-tmp)
-
-        tmp = tspInstance.score()
-        gain = self.getMicroEdgeSwapGain(0,20, 40)
-        self.microEdgeSwap(0, 20, 40)
-        print(gain == tspInstance.score()-tmp)
+        if algorithm:
+            algorithm[0]()
+            if visualize:
+                tspInstance.show()
+        else:
+            raise BadOptionError('No such algorithm')
 
     def getMacroNodeSwapGain(self, c1n, c2n):
         c1next = (c1n+1)%len(self.solution[0])
@@ -49,6 +57,8 @@ class TSPLocalSearch:
         self.solution[1][c2n]=tmp
 
     def getMicroNodeSwapGain(self, cycle, c1n, c2n):
+        if c1n == c2n:
+            return 0
         size=len(self.solution[cycle])
         c1next = (c1n+1)%size
         c1prev = (c1n-1)%size
@@ -70,6 +80,8 @@ class TSPLocalSearch:
         self.solution[cycle][n2]=tmp
 
     def getMicroEdgeSwapGain(self, cycle, c1n, c2n):
+        if c1n == c2n:
+            return 0
         size=len(self.solution[cycle])
         c1next = (c1n+1)%size
         c2next = (c2n+1)%size
@@ -93,11 +105,67 @@ class TSPLocalSearch:
 
         
 
-    def greedyLocalSearch(self, tspInstance):
-        pass
+    def greedyLocalSearch(self):
+        while True:
+            moves = []
+            for i in range(len(self.solution[0])):
+                for j in range(len(self.solution[1])):
+                    moves.append((i,j))
+            for cycle in range(2):
+                for i in range(len(self.solution[cycle])):
+                    for j in range(len(self.solution[cycle])):
+                        moves.append((cycle,i,j))
+            random.shuffle(moves)
+            noMove = True
+            for move in moves:
+                if len(move) == 2:#macro
+                    if self.macroMoveGain(*move) < 0:
+                        self.macroMove(*move)
+                        noMove=False
+                        break
+                else:#micro
+                    if self.microMoveGain(*move) < 0:
+                        self.microMove(*move)
+                        noMove=False
+                        break
+            if noMove:
+                break
+            if self.__vis: 
+                self.__vis()
 
-    def steepestLocalSearch(self, tspInstance):
-        pass
+    def steepestLocalSearch(self):
+        while True:
+            bestGain=0
+            move=None
+            macro=False
 
-    def randomSearch(self, tspInstance):
+            for i in range(len(self.solution[0])):
+                for j in range(len(self.solution[1])):
+                    gain = self.macroMoveGain(i,j)
+                    if gain < bestGain:
+                        bestGain=gain
+                        move=(i,j)
+                        macro=True
+            for cycle in range(2):
+                for i in range(len(self.solution[cycle])):
+                    for j in range(len(self.solution[cycle])):
+                        gain = self.microMoveGain(cycle, i,j)
+                        if gain < bestGain:
+                            bestGain=gain
+                            move=(cycle,i,j)
+                            macro=False
+            if bestGain == 0:
+                break
+            else:
+                if macro:
+                    self.macroMove(*move)
+                else:
+                    self.microMove(*move)
+            if self.__vis: 
+                self.__vis()
+
+
+
+
+    def randomSearch(self):
         pass
