@@ -2,6 +2,7 @@
 import random
 from TSPSolver import visualizationStepTime
 from optparse import BadOptionError
+import time
 
 class TSPLocalSearch:
     def __init__(self):
@@ -11,7 +12,7 @@ class TSPLocalSearch:
             ('random', self.randomSearch)
         ]
     
-    def search(self, tspInstance, algorithmName, microSwaps, visualize=False):
+    def search(self, tspInstance, algorithmName, microSwaps, visualize=False,*, timeLimit=10):
         self.solution= tspInstance.solution
         self.dmatrix= tspInstance.dmatrix
 
@@ -20,6 +21,7 @@ class TSPLocalSearch:
         self.__vis = (lambda: tspInstance.draw(True, visualizationStepTime)) if visualize else None
         self.macroMove = self.macroNodeSwap
         self.macroMoveGain = self.getMacroNodeSwapGain
+        self.timeLimit = timeLimit
         if microSwaps == 'node':
             self.microMove = self.microNodeSwap
             self.microMoveGain = self.getMicroNodeSwapGain
@@ -31,6 +33,7 @@ class TSPLocalSearch:
 
         if algorithm:
             algorithm[0]()
+            tspInstance.solution=self.solution
             if visualize:
                 tspInstance.show()
         else:
@@ -166,4 +169,33 @@ class TSPLocalSearch:
                 self.__vis()
 
     def randomSearch(self):
-        pass
+        start = time.time()
+        moves = []
+        for i in range(len(self.solution[0])):
+            for j in range(len(self.solution[1])):
+                moves.append((i,j))
+        for cycle in range(2):
+            for i in range(len(self.solution[cycle])):
+                for j in range(len(self.solution[cycle])):
+                    moves.append((cycle,i,j))
+        
+        def cpSolution():
+            return[self.solution[0][:],self.solution[1][:]]
+        bestSolution = cpSolution()
+        bestGain=0
+
+        gainSum=0
+        while self.timeLimit >= time.time()-start:
+            move = moves[random.randint(0, len(moves)-1)]
+            if len(move)==2:#macro
+                gainSum += self.macroMoveGain(*move)
+                self.macroMove(*move)
+            else:#micro
+                gainSum += self.microMoveGain(*move)
+                self.microMove(*move)
+            if gainSum < bestGain:
+                bestGain = gainSum
+                bestSolution=cpSolution()
+            if self.__vis: 
+                self.__vis()
+        self.solution = bestSolution

@@ -12,8 +12,8 @@ if __name__ == '__main__':
     for filename in ['kroA100.tsp', 'kroB100.tsp']:
         instance.loadInstance('instances/'+filename)
         solver.solve(instance, '2r', False)
+        lsearch.search(instance, 'random', 'edge', True, timeLimit=5)
         instance.show()
-        lsearch.search(instance, 'steepest', 'edge', True)
         
         #SIMPLE HEURISTIC TESTING
         #for algorithm in ['nn', 'gc', '2r', '3r']:
