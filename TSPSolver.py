@@ -2,6 +2,8 @@ from optparse import BadOptionError
 import random
 import numpy as np
 
+visualizationStepTime=.05
+
 class TSPSolver:
     def __init__(self):
         self.__options = [
@@ -16,7 +18,7 @@ class TSPSolver:
         tspInstance.solution = self.genStartingNodes(dmatrix)
         algorithm = list(o[1] for o in self.__options if algorithmName == o[0])
 
-        self.__vis = tspInstance.draw if visualize else None
+        self.__vis = (lambda *, cycle=False: tspInstance.draw(cycle, visualizationStepTime)) if visualize else None
         if algorithm:
             algorithm[0](dmatrix, tspInstance.solution)
             if visualize :
