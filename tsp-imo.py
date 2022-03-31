@@ -13,7 +13,7 @@ if __name__ == '__main__':
         instance.loadInstance('instances/'+filename)
         solver.solve(instance, '2r', False)
         instance.show()
-        lsearch.search(instance, 'greedy', 'edge', True)
+        lsearch.search(instance, 'steepest', 'edge', True)
         
         #SIMPLE HEURISTIC TESTING
         #for algorithm in ['nn', 'gc', '2r', '3r']:

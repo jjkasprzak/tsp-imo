@@ -106,15 +106,15 @@ class TSPLocalSearch:
         
 
     def greedyLocalSearch(self):
+        moves = []
+        for i in range(len(self.solution[0])):
+            for j in range(len(self.solution[1])):
+                moves.append((i,j))
+        for cycle in range(2):
+            for i in range(len(self.solution[cycle])):
+                for j in range(len(self.solution[cycle])):
+                    moves.append((cycle,i,j))
         while True:
-            moves = []
-            for i in range(len(self.solution[0])):
-                for j in range(len(self.solution[1])):
-                    moves.append((i,j))
-            for cycle in range(2):
-                for i in range(len(self.solution[cycle])):
-                    for j in range(len(self.solution[cycle])):
-                        moves.append((cycle,i,j))
             random.shuffle(moves)
             noMove = True
             for move in moves:
@@ -134,38 +134,36 @@ class TSPLocalSearch:
                 self.__vis()
 
     def steepestLocalSearch(self):
+        moves = []
+        for i in range(len(self.solution[0])):
+            for j in range(len(self.solution[1])):
+                moves.append((i,j))
+        for cycle in range(2):
+            for i in range(len(self.solution[cycle])):
+                for j in range(len(self.solution[cycle])):
+                    moves.append((cycle,i,j))
         while True:
             bestGain=0
-            move=None
-            macro=False
+            bestMove=None
+            for move in moves:
+                gain=0
+                if len(move) == 2:#macro
+                    gain = self.macroMoveGain(*move)
+                else:#micro
+                    gain = self.microMoveGain(*move)
+                if gain < bestGain:
+                    bestGain = gain
+                    bestMove = move
 
-            for i in range(len(self.solution[0])):
-                for j in range(len(self.solution[1])):
-                    gain = self.macroMoveGain(i,j)
-                    if gain < bestGain:
-                        bestGain=gain
-                        move=(i,j)
-                        macro=True
-            for cycle in range(2):
-                for i in range(len(self.solution[cycle])):
-                    for j in range(len(self.solution[cycle])):
-                        gain = self.microMoveGain(cycle, i,j)
-                        if gain < bestGain:
-                            bestGain=gain
-                            move=(cycle,i,j)
-                            macro=False
             if bestGain == 0:
                 break
             else:
-                if macro:
-                    self.macroMove(*move)
-                else:
-                    self.microMove(*move)
+                if len(bestMove)==2:#macro
+                    self.macroMove(*bestMove)
+                else:#micro
+                    self.microMove(*bestMove)
             if self.__vis: 
                 self.__vis()
-
-
-
 
     def randomSearch(self):
         pass
