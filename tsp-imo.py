@@ -2,13 +2,18 @@ import sys
 
 from TSPInstance import TSPInstance
 from TSPSolver import TSPSolver
+from TSPLocalSearch import TSPLocalSearch
 
 
 if __name__ == '__main__':
     instance = TSPInstance()
     solver = TSPSolver()
+    lsearch= TSPLocalSearch()
     for filename in ['kroA100.tsp', 'kroB100.tsp']:
         instance.loadInstance('instances/'+filename)
+        solver.solve(instance, '2r', False)
+        instance.show()
+        lsearch.search(instance)
         
         #SIMPLE HEURISTIC TESTING
         #for algorithm in ['nn', 'gc', '2r', '3r']:
