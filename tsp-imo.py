@@ -1,4 +1,5 @@
 import sys
+import time
 
 from TSPInstance import TSPInstance
 from TSPSolver import TSPSolver
@@ -11,9 +12,31 @@ if __name__ == '__main__':
     lsearch= TSPLocalSearch()
     for filename in ['kroA100.tsp', 'kroB100.tsp']:
         instance.loadInstance('instances/'+filename)
-        solver.solve(instance, '2r', False)
-        lsearch.search(instance, 'random', 'edge', True, timeLimit=5)
-        instance.show()
+        for heuristics in ['random', '2r']:
+            for microSwap in ['node', 'edge']:
+                for algorithm in ['random', 'greedy', 'steepest']:
+                    note = filename + '_' + heuristics + '-' + algorithm + '_search_with_' + microSwap + '_swap'
+                    print(note)
+                    scores=[]
+                    times=[]
+                    bestScore=None
+                    bestSolution=None
+                    for i in range(100):
+                        start=time.time()
+                        solver.solve(instance, heuristics, False)
+                        lsearch.search(instance, algorithm, microSwap, False, timeLimit=1.5)
+                        times.append(time.time()-start)
+                        scores.append(instance.score())
+                        if bestScore == None or scores[-1] < bestScore:
+                            bestScore=scores[-1]
+                            bestSolution=instance.solution            
+                    print('score: ' + str(sum(scores)//len(scores)) + ' (' + str(min(scores)) + ' - ' + str(max(scores)) + ')')
+                    print('time: ' + str(round(sum(times)/len(times),2)) + ' (' + str(round(min(times),2)) + ' - ' + str(round(max(times),2)) + ')')
+                    if bestScore:
+                        instance.solution=bestSolution
+                        instance.saveImg('images/' + note+'.png')    
+
+
         
         #SIMPLE HEURISTIC TESTING
         #for algorithm in ['nn', 'gc', '2r', '3r']:

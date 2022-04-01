@@ -33,7 +33,6 @@ class TSPLocalSearch:
 
         if algorithm:
             algorithm[0]()
-            tspInstance.solution=self.solution
             if visualize:
                 tspInstance.show()
         else:
@@ -62,11 +61,13 @@ class TSPLocalSearch:
     def getMicroNodeSwapGain(self, cycle, c1n, c2n):
         if c1n == c2n:
             return 0
+
         size=len(self.solution[cycle])
         c1next = (c1n+1)%size
         c1prev = (c1n-1)%size
         c2next = (c2n+1)%size
         c2prev = (c2n-1)%size
+
 
         n1prev = self.solution[cycle][c1prev]
         n1 = self.solution[cycle][c1n]
@@ -75,7 +76,10 @@ class TSPLocalSearch:
         n2prev = self.solution[cycle][c2prev]
         n2 = self.solution[cycle][c2n]
         n2next = self.solution[cycle][c2next]
-        return -self.dmatrix[n1][n1prev]-self.dmatrix[n1][n1next]-self.dmatrix[n2][n2prev]-self.dmatrix[n2][n2next]+self.dmatrix[n1prev][n2]+self.dmatrix[n2][n1next]+self.dmatrix[n2prev][n1]+self.dmatrix[n2next][n1]
+        bonus = 0
+        if c1next == c2n or c2next == c1n:
+            bonus=2*self.dmatrix[n1][n2]
+        return bonus-self.dmatrix[n1][n1prev]-self.dmatrix[n1][n1next]-self.dmatrix[n2][n2prev]-self.dmatrix[n2][n2next]+self.dmatrix[n1prev][n2]+self.dmatrix[n2][n1next]+self.dmatrix[n2prev][n1]+self.dmatrix[n2next][n1]
 
     def microNodeSwap(self, cycle, n1, n2):
         tmp = self.solution[cycle][n1]
@@ -179,23 +183,22 @@ class TSPLocalSearch:
                 for j in range(len(self.solution[cycle])):
                     moves.append((cycle,i,j))
         
-        def cpSolution():
-            return[self.solution[0][:],self.solution[1][:]]
-        bestSolution = cpSolution()
+        bestSolution = [self.solution[0][:],self.solution[1][:]]
         bestGain=0
 
         gainSum=0
         while self.timeLimit >= time.time()-start:
             move = moves[random.randint(0, len(moves)-1)]
             if len(move)==2:#macro
-                gainSum += self.macroMoveGain(*move)
+                gainSum = gainSum + self.macroMoveGain(*move)
                 self.macroMove(*move)
             else:#micro
-                gainSum += self.microMoveGain(*move)
+                gainSum = gainSum + self.microMoveGain(*move)
                 self.microMove(*move)
             if gainSum < bestGain:
                 bestGain = gainSum
-                bestSolution=cpSolution()
+                bestSolution=[self.solution[0][:],self.solution[1][:]]
             if self.__vis: 
                 self.__vis()
-        self.solution = bestSolution
+        self.solution[0]=bestSolution[0]
+        self.solution[1]=bestSolution[1]

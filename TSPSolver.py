@@ -10,7 +10,8 @@ class TSPSolver:
             ('nn', self.nearestNeighbour),
             ('gc', self.greedyCycle),
             ('2r', lambda dmat, sol: self.kRegret(dmat, sol, 2)),
-            ('3r', lambda dmat, sol: self.kRegret(dmat, sol, 3))
+            ('3r', lambda dmat, sol: self.kRegret(dmat, sol, 3)),
+            ('random', self.randomSolve)
         ]
     
     def solve(self, tspInstance, algorithmName, visualize=False):
@@ -140,6 +141,13 @@ class TSPSolver:
             candidates=sorted(candidates, key=lambda e: e[2])
             used.add(candidates[0][0])
             cycle.insert(candidates[0][1], candidates[0][0])
+
+    def randomSolve(self, dmatrix, solution):
+        tmp=list(range(len(dmatrix)))
+        random.shuffle(tmp)
+        solution[0]=tmp[:len(tmp)//2]
+        solution[1]=tmp[len(tmp)//2:]
+
         
     def calcCycleScore(self, cycle, dmatrix):
         score=0

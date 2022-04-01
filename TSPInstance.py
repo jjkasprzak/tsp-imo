@@ -65,7 +65,7 @@ class TSPInstance:
             g2 = nx.Graph()
             g1.add_edges_from(c1)
             g2.add_edges_from(c2)
-            coordDict=dict(enumerate(self.coords))
+        coordDict=dict(enumerate(self.coords))
 
         plt.clf()
         nx.draw(g, coordDict, node_color="#000000", edge_color="#000000", node_size=40)
@@ -79,3 +79,7 @@ class TSPInstance:
     def show(self):
         self.draw()
         plt.show()
+
+    def saveImg(self, path):
+        self.draw()
+        plt.savefig(path)
