@@ -1,0 +1,73 @@
+kroA100.tsp_random-random_search_with_node_swap
+score: 134131 (127741 - 139100)
+time: 1.5 (1.5 - 1.51)
+kroA100.tsp_random-greedy_search_with_node_swap
+score: 41330 (34151 - 51368)
+time: 1.49 (1.23 - 1.88)
+kroA100.tsp_random-steepest_search_with_node_swap
+score: 42816 (33496 - 52950)
+time: 1.66 (1.24 - 2.41)
+kroA100.tsp_random-random_search_with_edge_swap
+score: 134575 (127502 - 139662)
+time: 1.5 (1.5 - 1.5)
+kroA100.tsp_random-greedy_search_with_edge_swap
+score: 28057 (25784 - 30736)
+time: 1.4 (1.17 - 1.81)
+kroA100.tsp_random-steepest_search_with_edge_swap
+score: 27798 (24607 - 30519)
+time: 1.08 (0.93 - 1.28)
+kroA100.tsp_2r-random_search_with_node_swap
+score: 26864 (23287 - 29365)
+time: 1.56 (1.55 - 1.57)
+kroA100.tsp_2r-greedy_search_with_node_swap
+score: 25491 (22861 - 27827)
+time: 0.15 (0.08 - 0.3)
+kroA100.tsp_2r-steepest_search_with_node_swap
+score: 25558 (22861 - 27701)
+time: 0.17 (0.08 - 0.28)
+kroA100.tsp_2r-random_search_with_edge_swap
+score: 26872 (23287 - 29365)
+time: 1.56 (1.55 - 1.57)
+kroA100.tsp_2r-greedy_search_with_edge_swap
+score: 25279 (22386 - 27511)
+time: 0.15 (0.09 - 0.29)
+kroA100.tsp_2r-steepest_search_with_edge_swap
+score: 25179 (22334 - 27142)
+time: 0.16 (0.1 - 0.23)
+kroB100.tsp_random-random_search_with_node_swap
+score: 132215 (124495 - 136052)
+time: 1.5 (1.5 - 1.5)
+kroB100.tsp_random-greedy_search_with_node_swap
+score: 41148 (34960 - 51534)
+time: 1.52 (1.23 - 2.01)
+kroB100.tsp_random-steepest_search_with_node_swap
+score: 43076 (35119 - 53484)
+time: 1.64 (1.25 - 2.14)
+kroB100.tsp_random-random_search_with_edge_swap
+score: 132762 (122445 - 137398)
+time: 1.5 (1.5 - 1.5)
+kroB100.tsp_random-greedy_search_with_edge_swap
+score: 28933 (26475 - 31961)
+time: 1.43 (1.19 - 1.86)
+kroB100.tsp_random-steepest_search_with_edge_swap
+score: 28457 (26716 - 31504)
+time: 1.07 (0.85 - 1.37)
+kroB100.tsp_2r-random_search_with_node_swap
+score: 28891 (26559 - 31859)
+time: 1.56 (1.55 - 1.57)
+kroB100.tsp_2r-greedy_search_with_node_swap
+score: 27453 (25153 - 28766)
+time: 0.18 (0.1 - 0.37)
+kroB100.tsp_2r-steepest_search_with_node_swap
+score: 27255 (24641 - 28592)
+time: 0.22 (0.12 - 0.4)
+kroB100.tsp_2r-random_search_with_edge_swap
+score: 28891 (26559 - 31859)
+time: 1.56 (1.55 - 1.57)
+kroB100.tsp_2r-greedy_search_with_edge_swap
+score: 27186 (24142 - 28442)
+time: 0.19 (0.13 - 0.38)
+kroB100.tsp_2r-steepest_search_with_edge_swap
+score: 27115 (24578 - 28390)
+time: 0.19 (0.13 - 0.27)
+PS C:\Users\Jakub\repos\tsp-imo> 
