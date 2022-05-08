@@ -14,14 +14,14 @@ if __name__ == '__main__':
         instance.loadInstance('instances/'+filename)
         for heuristics in ['random', '2r']:
             for microSwap in ['edge']:#['node', 'edge']:
-                for algorithm in ['steepestWithList']:#['random', 'greedy', 'steepest', 'steepestWithList']:
+                for algorithm in ['steepestWithCandidates']:#['random', 'greedy', 'steepest', 'steepestWithList']:
                     note = filename + '_' + heuristics + '-' + algorithm + '_search_with_' + microSwap + '_swap'
                     print(note)
                     scores=[]
                     times=[]
                     bestScore=None
                     bestSolution=None
-                    for i in range(100):
+                    for i in range(1):
                         start=time.time()
                         solver.solve(instance, heuristics, False)
                         lsearch.search(instance, algorithm, microSwap, False, timeLimit=1.5)

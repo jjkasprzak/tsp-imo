@@ -7,6 +7,7 @@ import time
 class TSPLocalSearch:
     def __init__(self):
         self.__options = [
+            ('steepestWithCandidates', self.steepestLocalSearchWithCandidates),
             ('steepestWithList', self.steepestLocalSearchWithList),
             ('steepest', self.steepestLocalSearch),
             ('greedy', self.greedyLocalSearch),
@@ -234,6 +235,43 @@ class TSPLocalSearch:
             else:#micro
                 self.microMove(*move)
             ml=ml[pos+1:]
+            if self.__vis: 
+                self.__vis()
+
+    def steepestLocalSearchWithCandidates(self):
+        nodes=range(len(self.dmatrix))
+        proxTable= tuple(sorted(range(len(self.dmatrix)), key=lambda node: self.dmatrix[i][node]) for i in range(len(self.dmatrix)))
+        while True:
+            bestGain=0
+            bestMove=None
+            
+            for n1 in nodes:
+                for n2 in proxTable[n1][:20]:
+                    if n1 in self.solution[0]:
+                        if n2 in self.solution[0]:#micro
+                            move=(0, self.solution[0].index(n1), self.solution[0].index(n2))
+                            gain = self.microMoveGain(*move)
+                        else:#macro
+                            move=((self.solution[0].index(n1)+1)%len(self.solution[0]), self.solution[1].index(n2))
+                            gain = self.macroMoveGain(*move)
+                    else:
+                        if n2 in self.solution[0]:#macro
+                            move=(self.solution[0].index(n2), (self.solution[1].index(n1)+1)%len(self.solution[1]))
+                            gain = self.macroMoveGain(*move)
+                        else:#micro
+                            move=(1, self.solution[1].index(n1), self.solution[1].index(n2))
+                            gain = self.microMoveGain(*move)
+                if gain < bestGain:
+                    bestGain = gain
+                    bestMove = move
+
+            if bestGain == 0:
+                break
+            else:
+                if len(bestMove)==2:#macro
+                    self.macroMove(*bestMove)
+                else:#micro
+                    self.microMove(*bestMove)
             if self.__vis: 
                 self.__vis()
 
