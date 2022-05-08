@@ -219,9 +219,11 @@ class TSPLocalSearch:
                         gain = self.macroMoveGain(*tmp)
                     else:
                         gain = self.microMoveGain(*tmp)
-                    if gain < 0 and pos+1<len(ml) and gain < ml[pos+1][-1]:
-                        move=tmp
-                        best=gain
+                    if gain < 0:
+                        if gain < best:
+                            move=tmp
+                            best=gain
+                    if best != 0 and pos+1<len(ml) and best < ml[pos+1][-1]:
                         break
                 except ValueError:
                     pass
