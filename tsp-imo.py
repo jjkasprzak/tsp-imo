@@ -13,8 +13,8 @@ if __name__ == '__main__':
     for filename in ['kroA100.tsp', 'kroB100.tsp']:
         instance.loadInstance('instances/'+filename)
         for heuristics in ['random', '2r']:
-            for microSwap in ['node', 'edge']:
-                for algorithm in ['random', 'greedy', 'steepest']:
+            for microSwap in ['edge']:#['node', 'edge']:
+                for algorithm in ['steepestWithList']:#['random', 'greedy', 'steepest', 'steepestWithList']:
                     note = filename + '_' + heuristics + '-' + algorithm + '_search_with_' + microSwap + '_swap'
                     print(note)
                     scores=[]

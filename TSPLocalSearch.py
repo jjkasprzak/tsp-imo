@@ -7,6 +7,7 @@ import time
 class TSPLocalSearch:
     def __init__(self):
         self.__options = [
+            ('steepestWithList', self.steepestLocalSearchWithList),
             ('steepest', self.steepestLocalSearch),
             ('greedy', self.greedyLocalSearch),
             ('random', self.randomSearch)
@@ -169,6 +170,68 @@ class TSPLocalSearch:
                     self.macroMove(*bestMove)
                 else:#micro
                     self.microMove(*bestMove)
+            if self.__vis: 
+                self.__vis()
+
+    def steepestLocalSearchWithList(self):
+        def transformMove(move):
+            res=None
+            if len(move)==2:#macro
+                res = (self.solution[0].index(move[0]),self.solution[1].index(move[1]))
+            else:#micro
+                res = (move[0], self.solution[move[0]].index(move[1]),self.solution[move[0]].index(move[2]))
+            return res
+        moves = []
+        mset=set()
+        for ip, i in enumerate(self.solution[0]):
+            for jp, j in enumerate(self.solution[1]):
+                moves.append(((i,j), self.macroMoveGain(ip,jp)))
+                mset.add((i,j))
+        for cycle in range(2):
+            for ip, i in enumerate(self.solution[cycle]):
+                for jp, j in enumerate(self.solution[cycle]):
+                    moves.append(((cycle,i,j), self.microMoveGain(cycle,ip,jp)))
+                    mset.add((cycle,i,j))
+        ml=sorted(moves, key=lambda e: e[-1])
+        while True:
+            move=[]
+            moves=[]
+            for ip, i in enumerate(self.solution[0]):
+                for jp, j in enumerate(self.solution[1]):
+                    if (i,j) not in mset:
+                        mset.add((i,j))
+                        moves.append(((i,j), self.macroMoveGain(ip,jp)))
+                    
+            for cycle in range(2):
+                for ip, i in enumerate(self.solution[cycle]):
+                    for jp, j in enumerate(self.solution[cycle]):
+                        if (cycle,i,j) not in mset:
+                            moves.append(((cycle,i,j), self.microMoveGain(cycle,ip,jp)))
+                            mset.add((cycle,i,j))
+            ml=sorted(moves+ml, key=lambda e: e[-1])
+            
+            best=0
+            for pos in range(len(ml)):
+                mset.remove(ml[pos][0])
+                try:
+                    tmp = transformMove(ml[pos][0])
+                    if len(tmp)==2:#macro
+                        gain = self.macroMoveGain(*tmp)
+                    else:
+                        gain = self.microMoveGain(*tmp)
+                    if gain < 0 and pos+1<len(ml) and gain < ml[pos+1][-1]:
+                        move=tmp
+                        best=gain
+                        break
+                except ValueError:
+                    pass
+            if best==0:
+                break
+            if len(move)==2:#macro
+                self.macroMove(*move)
+            else:#micro
+                self.microMove(*move)
+            ml=ml[pos+1:]
             if self.__vis: 
                 self.__vis()
 
