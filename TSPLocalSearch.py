@@ -1,5 +1,7 @@
 
 import random
+
+import numpy as np
 from TSPSolver import visualizationStepTime
 from optparse import BadOptionError
 import time
@@ -239,36 +241,56 @@ class TSPLocalSearch:
                 self.__vis()
 
     def steepestLocalSearchWithCandidates(self):
+        def bestMicro(c, n1,n2):
+            i1,i2=[self.solution[c].index(n1), self.solution[c].index(n2)]
+            m1=(c, i1, i2)
+            m2=(c, (i1-1)%len(self.solution[c]), (i2-1)%len(self.solution[c]))
+            g1=self.microMoveGain(*m1)
+            g2=self.microMoveGain(*m2)
+            if g1< g2:
+                return m1,g1
+            return m2,g2
+        def bestMacro(n1,n2):
+            i1,i2=[self.solution[0].index(n1), self.solution[1].index(n2)]
+            m1=((i1+1)%len(self.solution[0]), i2)
+            m2=((i1-1)%len(self.solution[0]), i2)
+            #m3=(i1, (i2+1)%len(self.solution[1]))
+            #m4=(i1, (i2-1)%len(self.solution[1]))
+            ms=[m1,m2]#,m3,m4]
+            gs=list(self.macroMoveGain(*m) for m in ms)
+            best=np.argmax(gs)
+            return ms[best], gs[best]
+
         nodes=range(len(self.dmatrix))
         proxTable= tuple(sorted(range(len(self.dmatrix)), key=lambda node: self.dmatrix[i][node]) for i in range(len(self.dmatrix)))
+        moves=[]
+        for n1 in nodes:
+            for n2 in proxTable[n1][1:10]:
+                moves.append((n1,n2))
+        s0=set(self.solution[0])
         while True:
             bestGain=0
             bestMove=None
-            
-            for n1 in nodes:
-                for n2 in proxTable[n1][:20]:
-                    if n1 in self.solution[0]:
-                        if n2 in self.solution[0]:#micro
-                            move=(0, self.solution[0].index(n1), self.solution[0].index(n2))
-                            gain = self.microMoveGain(*move)
-                        else:#macro
-                            move=((self.solution[0].index(n1)+1)%len(self.solution[0]), self.solution[1].index(n2))
-                            gain = self.macroMoveGain(*move)
-                    else:
-                        if n2 in self.solution[0]:#macro
-                            move=(self.solution[0].index(n2), (self.solution[1].index(n1)+1)%len(self.solution[1]))
-                            gain = self.macroMoveGain(*move)
-                        else:#micro
-                            move=(1, self.solution[1].index(n1), self.solution[1].index(n2))
-                            gain = self.microMoveGain(*move)
+            for n1,n2 in moves:
+                if n1 in s0:
+                    if n2 in s0:#micro
+                        move,gain=bestMicro(0,n1,n2)
+                    else:#macro
+                        move,gain=bestMacro(n1,n2)
+                else:
+                    if n2 in s0:#macro
+                        move,gain=bestMacro(n2,n1)
+                    else:#micro
+                        move,gain=bestMicro(1,n1,n2)
                 if gain < bestGain:
                     bestGain = gain
                     bestMove = move
-
             if bestGain == 0:
                 break
             else:
                 if len(bestMove)==2:#macro
+                    s0.remove(self.solution[0][bestMove[0]])
+                    s0.add(self.solution[1][bestMove[1]])
                     self.macroMove(*bestMove)
                 else:#micro
                     self.microMove(*bestMove)

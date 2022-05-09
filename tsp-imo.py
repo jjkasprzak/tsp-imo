@@ -10,9 +10,9 @@ if __name__ == '__main__':
     instance = TSPInstance()
     solver = TSPSolver()
     lsearch= TSPLocalSearch()
-    for filename in ['kroA100.tsp', 'kroB100.tsp']:
+    for filename in ['kroA200.tsp', 'kroB200.tsp']:
         instance.loadInstance('instances/'+filename)
-        for heuristics in ['random', '2r']:
+        for heuristics in ['random']:
             for microSwap in ['edge']:#['node', 'edge']:
                 for algorithm in ['steepestWithCandidates']:#['random', 'greedy', 'steepest', 'steepestWithList']:
                     note = filename + '_' + heuristics + '-' + algorithm + '_search_with_' + microSwap + '_swap'
@@ -21,7 +21,7 @@ if __name__ == '__main__':
                     times=[]
                     bestScore=None
                     bestSolution=None
-                    for i in range(1):
+                    for i in range(100):
                         start=time.time()
                         solver.solve(instance, heuristics, False)
                         lsearch.search(instance, algorithm, microSwap, False, timeLimit=1.5)
