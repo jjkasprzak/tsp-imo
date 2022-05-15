@@ -15,12 +15,24 @@ class TSPLocalSearch:
             ('greedy', self.greedyLocalSearch),
             ('random', self.randomSearch)
         ]
+        self.__extensionOptions = [
+            ('msls', self.msls),
+            ('ils1', self.ils1),
+            ('ils2', self.ils2)
+        ]
     
-    def search(self, tspInstance, algorithmName, microSwaps, visualize=False,*, timeLimit=10):
-        self.solution= tspInstance.solution
+    def search(self, tspInstance, algorithmName, microSwaps, solve, visualize=False,*, timeLimit=10, extensionName=None):
+        def newsol():
+            solve(tspInstance)
+            self.solution= tspInstance.solution
+        self.genNewSolution=newsol
+        self.score = lambda: tspInstance.score()
+
+        self.genNewSolution()
         self.dmatrix= tspInstance.dmatrix
 
         algorithm = list(o[1] for o in self.__options if algorithmName == o[0])
+        extension = list(o[1] for o in self.__extensionOptions if extensionName == o[0])
         
         self.__vis = (lambda: tspInstance.draw(True, visualizationStepTime)) if visualize else None
         self.macroMove = self.macroNodeSwap
@@ -36,11 +48,19 @@ class TSPLocalSearch:
             raise BadOptionError('No such swap option')
 
         if algorithm:
-            algorithm[0]()
+            if extensionName:
+                if extension:
+                    extension[0](algorithm[0])
+                else:
+                    raise BadOptionError('No such extension')
+            else:
+                algorithm[0]()
+
             if visualize:
                 tspInstance.show()
         else:
             raise BadOptionError('No such algorithm')
+        tspInstance.solution = self.solution
 
     def getMacroNodeSwapGain(self, c1n, c2n):
         c1next = (c1n+1)%len(self.solution[0])
@@ -241,8 +261,9 @@ class TSPLocalSearch:
                 self.__vis()
 
     def steepestLocalSearchWithCandidates(self):
+        indexes=dict()
         def bestMicro(c, n1,n2):
-            i1,i2=[self.solution[c].index(n1), self.solution[c].index(n2)]
+            i1,i2=[indexes[n1], indexes[n2]]
             m1=(c, i1, i2)
             m2=(c, (i1-1)%len(self.solution[c]), (i2-1)%len(self.solution[c]))
             g1=self.microMoveGain(*m1)
@@ -251,7 +272,7 @@ class TSPLocalSearch:
                 return m1,g1
             return m2,g2
         def bestMacro(n1,n2):
-            i1,i2=[self.solution[0].index(n1), self.solution[1].index(n2)]
+            i1,i2=[indexes[n1], indexes[n2]]
             m1=((i1+1)%len(self.solution[0]), i2)
             m2=((i1-1)%len(self.solution[0]), i2)
             #m3=(i1, (i2+1)%len(self.solution[1]))
@@ -269,6 +290,15 @@ class TSPLocalSearch:
                 moves.append((n1,n2))
         s0=set(self.solution[0])
         while True:
+            ind=0
+            for node in self.solution[0]:
+                indexes[node]=ind
+                ind+=1
+            ind=0
+            for node in self.solution[1]:
+                indexes[node]=ind
+                ind+=1
+            
             bestGain=0
             bestMove=None
             for n1,n2 in moves:
@@ -327,3 +357,24 @@ class TSPLocalSearch:
                 self.__vis()
         self.solution[0]=bestSolution[0]
         self.solution[1]=bestSolution[1]
+
+    def msls(self, ls):
+        bestScore=self.score()
+        bestSolution=self.solution
+
+        for i in range(100):
+            self.genNewSolution()
+            ls()
+            score = self.score()
+            if score < bestScore:
+                bestScore=score
+                bestSolution=self.solution
+
+            if self.__vis: 
+                self.__vis()
+        self.solution=bestSolution
+
+    def ils1(self, ls):
+        pass
+    def ils2(self, ls):
+        pass
