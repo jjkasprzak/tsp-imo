@@ -15,17 +15,17 @@ if __name__ == '__main__':
         for heuristics in ['random']:
             for microSwap in ['edge']:#['node', 'edge']:
                 for algorithm in ['steepestWithList']:#['random', 'greedy', 'steepest', 'steepestWithList']:
-                    for extension in ['msls']:
+                    for extension in ['msls', 'ils1', 'ils2']:
                         note = filename + '_' + heuristics + '-' + algorithm + '_search_with_' + microSwap + '_swap_and_' + extension
                         print(note)
                         scores=[]
                         times=[]
                         bestScore=None
                         bestSolution=None
-                        for i in range(1):
+                        for i in range(10):
                             start=time.time()
                             solve = lambda inst: solver.solve(inst, heuristics, False)
-                            lsearch.search(instance, algorithm, microSwap, solve, False, timeLimit=1.5, extensionName=extension)
+                            lsearch.search(instance, algorithm, microSwap, solve, False, timeLimit=750, extensionName=extension)
                             times.append(time.time()-start)
                             scores.append(instance.score())
                             if bestScore == None or scores[-1] < bestScore:

@@ -2,7 +2,7 @@
 import random
 
 import numpy as np
-from TSPSolver import visualizationStepTime
+from TSPSolver import visualizationStepTime, TSPSolver
 from optparse import BadOptionError
 import time
 
@@ -27,6 +27,7 @@ class TSPLocalSearch:
             self.solution= tspInstance.solution
         self.genNewSolution=newsol
         self.score = lambda: tspInstance.score()
+        self.tspInstance=tspInstance
 
         self.genNewSolution()
         self.dmatrix= tspInstance.dmatrix
@@ -359,6 +360,7 @@ class TSPLocalSearch:
         self.solution[1]=bestSolution[1]
 
     def msls(self, ls):
+        ls()
         bestScore=self.score()
         bestSolution=self.solution
 
@@ -375,6 +377,65 @@ class TSPLocalSearch:
         self.solution=bestSolution
 
     def ils1(self, ls):
-        pass
+        start = time.time()
+        moves = []
+        for i in range(len(self.solution[0])):
+            for j in range(len(self.solution[1])):
+                moves.append((i,j))
+        for cycle in range(2):
+            for i in range(len(self.solution[cycle])):
+                for j in range(len(self.solution[cycle])):
+                    moves.append((cycle,i,j))
+
+
+        ls()
+        bestScore=self.score()
+        bestSolution=self.solution
+
+        while self.timeLimit >= time.time()-start:
+            self.solution=[bestSolution[0][:], bestSolution[1][:]]
+            self.tspInstance.solution=self.solution
+            for i in range(int(len(self.dmatrix)*0.08)):
+                move = moves[random.randint(0, len(moves)-1)]
+                if len(move)==2:#macro
+                    self.macroMove(*move)
+                else:#micro
+                    self.microMove(*move)
+            ls()
+            score = self.score()
+            if score < bestScore:
+                bestScore=score
+                bestSolution=self.solution
+
+            if self.__vis: 
+                self.__vis()
+        self.solution=bestSolution
     def ils2(self, ls):
-        pass
+        start = time.time()
+        ls()
+        bestScore=self.score()
+        bestSolution=self.solution
+        solver = TSPSolver()
+
+        while self.timeLimit >= time.time()-start:
+            self.solution=[bestSolution[0][:], bestSolution[1][:]]
+            self.tspInstance.solution=self.solution
+            tmp = list(range(len(self.dmatrix)))
+            random.shuffle(tmp)
+            toRemove = tmp[0:int(len(self.dmatrix)*0.2)]
+            
+            s0=set(self.solution[0])
+            for node in toRemove:
+                if node in s0:
+                    self.solution[0].remove(node)
+                else:
+                    self.solution[1].remove(node)
+            solver.kRegret(self.dmatrix, self.solution, 2)
+            score = self.score()
+            if score < bestScore:
+                bestScore=score
+                bestSolution=self.solution
+
+            if self.__vis: 
+                self.__vis()
+        self.solution=bestSolution

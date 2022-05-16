@@ -13,6 +13,7 @@ class TSPSolver:
             ('3r', lambda dmat, sol: self.kRegret(dmat, sol, 3)),
             ('random', self.randomSolve)
         ]
+        self.__vis=None
     
     def solve(self, tspInstance, algorithmName, visualize=False):
         dmatrix=tspInstance.dmatrix
@@ -34,8 +35,10 @@ class TSPSolver:
 
     def nearestNeighbour(self, dmatrix, solution):
         used=set()
-        used.add(solution[0][0])
-        used.add(solution[1][0])
+        for n in solution[0]:
+            used.add(n)
+        for n in solution[1]:
+            used.add(n)
 
         proxTable= tuple(sorted(range(len(dmatrix)), key=lambda node: dmatrix[i][node]) for i in range(len(dmatrix)))
         lastAddedNodes=[solution[0][-1], solution[1][-1]]
@@ -106,8 +109,10 @@ class TSPSolver:
 
     def kRegret(self, dmatrix, solution, k):
         used=set()
-        used.add(solution[0][0])
-        used.add(solution[1][0])
+        for n in solution[0]:
+            used.add(n)
+        for n in solution[1]:
+            used.add(n)
 
         while len(used)<len(dmatrix):
             if self.__vis: 
