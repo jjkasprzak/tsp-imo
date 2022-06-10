@@ -4,28 +4,30 @@ import time
 from TSPInstance import TSPInstance
 from TSPSolver import TSPSolver
 from TSPLocalSearch import TSPLocalSearch
+from TSPEvolutionary import steadyState
 
 
 if __name__ == '__main__':
     instance = TSPInstance()
     solver = TSPSolver()
     lsearch= TSPLocalSearch()
-    for filename in ['kroA200.tsp', 'kroB200.tsp']:
+    for filename in ['kroB200.tsp']:
         instance.loadInstance('instances/'+filename)
         for heuristics in ['random']:
             for microSwap in ['edge']:#['node', 'edge']:
                 for algorithm in ['steepestWithList']:#['random', 'greedy', 'steepest', 'steepestWithList']:
-                    for extension in ['msls', 'ils1', 'ils2']:
-                        note = filename + '_' + heuristics + '-' + algorithm + '_search_with_' + microSwap + '_swap_and_' + extension
+                    for extension in [True, False]:
+                        note = filename + '_' + heuristics + '-' + algorithm + '_search_with_' + microSwap + '_swap_and_' + str(extension)
                         print(note)
                         scores=[]
                         times=[]
                         bestScore=None
                         bestSolution=None
-                        for i in range(10):
+                        for i in range(5):
                             start=time.time()
-                            solve = lambda inst: solver.solve(inst, heuristics, False)
-                            lsearch.search(instance, algorithm, microSwap, solve, False, timeLimit=750, extensionName=extension)
+                            steadyState(instance, timeLimit=750, localSearch=extension)
+                            #solve = lambda inst: solver.solve(inst, heuristics, False)
+                            #lsearch.search(instance, algorithm, microSwap, solve, False, timeLimit=750, extensionName=extension)
                             times.append(time.time()-start)
                             scores.append(instance.score())
                             if bestScore == None or scores[-1] < bestScore:
